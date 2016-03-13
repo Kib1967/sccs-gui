@@ -2,7 +2,7 @@ if( !session ) {
 	session = request.getSession( true )
 }
 	
-def allProperties = session.getAttribute 'allProperties'
+def model = session.getAttribute 'propertiesModel'
 	
 if( !allProperties ) {
 	String remoteRepo = context.getInitParameter( 'git.remote' )
@@ -15,9 +15,10 @@ if( !allProperties ) {
 	Git git = new Git( remoteRepo, localDir, branchName, cloneIfAbsent, autoPush )
 
 	Path path = localDir.resolve( propertiesFileName )
+	def model = new PropertiesModel()
 	def reader = new PropertiesReader()
-	allProperties = reader.readAll( path.text )
-	session.setAttribute 'allProperties', allProperties
+	reader.readAll( path.text, model )
+	session.setAttribute 'propertiesModel', model
 }
 
 def showSuccessBanner = 'success'.equals( request.getParameter( 'r' ))
