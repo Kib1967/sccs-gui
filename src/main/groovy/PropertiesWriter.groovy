@@ -1,8 +1,11 @@
+import java.nio.file.*
 import java.util.Set
 
 class PropertiesWriter {
 
 	def writeAll( PropertiesModel model, String fileName ) {
+	
+		def maps = [:]
 	
 		// Need to make a map-of-maps for the YamlWriter
 		model.environmentNames.each { environmentName ->

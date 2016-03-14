@@ -1,3 +1,6 @@
+import java.nio.file.*
+import org.ajoberstar.grgit.*
+
 if( !session ) {
 	session = request.getSession( true )
 }
@@ -14,9 +17,10 @@ if( !model ) {
 	
 	Git git = new Git( remoteRepo, localDir, branchName, cloneIfAbsent, autoPush )
 
-	Path path = localDir.resolve( propertiesFileName )
-	def model = new PropertiesModel()
+	Path path = Paths.get( localDir, propertiesFileName )
+	model = new PropertiesModel()
 	def reader = new PropertiesReader()
+	
 	reader.readAll( path.text, model )
 	session.setAttribute 'propertiesModel', model
 }
@@ -66,7 +70,7 @@ html.html {
 					}
 					tbody {
 						model.propertyNames.each { propertyName ->
-							def submap = model.valuesForProperty[propertyName]
+							def submap = model.getValuesForProperty( propertyName )
 							def rowCount = submap.entrySet().size()
 							submap.eachWithIndex { env, value, index ->
 								tr {

@@ -4,8 +4,7 @@ class PropertiesReader {
 		def reader = new YamlReader()
 		def documents = reader.read( text )
 
-		documents.each { document ->
-			def environmentName = document[spring.profiles]
+		documents.each { environmentName, document ->
 			model.addEnvironment( environmentName, document )
 		}
 	}
