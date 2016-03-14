@@ -2,15 +2,17 @@ if( !session ) {
 	session = request.getSession( true )
 }
 	
-def allProperties = session.getAttribute 'allProperties'
+def model = session.getAttribute 'propertiesModel'
 String propertiesFileName = context.getInitParameter( 'properties.file' )
 	
 // This shouldn't happen at this point
-if( !allProperties ) {
+if( !model ) {
 
+	Path path = localDir.resolve( propertiesFileName )
+	def model = new PropertiesModel()
 	def reader = new PropertiesReader()
-	allProperties = reader.readAll( propertiesFileName )
-	session.setAttribute 'allProperties', allProperties
+	reader.readAll( path.text, model )
+	session.setAttribute 'propertiesModel', model
 }
 
 def parameterNames = request.getParameterNames()
@@ -20,7 +22,7 @@ parameterNames.each { parameterName ->
 	
 	def (propertyName, envName) = parameterName.tokenize( ':' )
 	
-	allProperties[(envName)][(propertyName)] = value
+	model.valuesForProperty[propertyName] << [(envName):(value)]
 }
 
 String remoteRepo = context.getInitParameter( 'git.remote' )
@@ -31,7 +33,7 @@ boolean autoPush = context.getInitParameter( 'git.auto-push' )
 
 Git git = new Git( remoteRepo, localDir, branchName, cloneIfAbsent, autoPush )
 	
-new PropertiesWriter().writeAll( allProperties, propertiesFileName )
+new PropertiesWriter().writeAll( model, propertiesFileName )
 
 git.commit()
 

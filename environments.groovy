@@ -4,7 +4,7 @@ if( !session ) {
 	
 def model = session.getAttribute 'propertiesModel'
 	
-if( !allProperties ) {
+if( !model ) {
 	String remoteRepo = context.getInitParameter( 'git.remote' )
 	String localDir = context.getInitParameter( 'git.local' )
 	String branchName = context.getInitParameter( 'git.branch' )
@@ -65,17 +65,18 @@ html.html {
 						}
 					}
 					tbody {
-						allProperties.each { key, submap ->
+						model.propertyNames.each { propertyName ->
+							def submap = model.valuesForProperty[propertyName]
 							def rowCount = submap.entrySet().size()
 							submap.eachWithIndex { env, value, index ->
 								tr {
-									def divId = "${env}:${key}.div"
-									def fieldId = "${env}:${key}"
+									def divId = "${env}:${propertyName}.div"
+									def fieldId = "${env}:${propertyName}"
 									def displayableValue = (value==null) ? '[empty]' : value
 									def editableValue = (value==null) ? '' : value
 									
 									if( index==0 ) {
-										td('rowspan': rowCount) { mkp.yield(key) }
+										td('rowspan': rowCount) { mkp.yield(propertyName) }
 									}
 									td env
 									td {
